@@ -21,7 +21,7 @@ using System.Text;
 
 namespace System.IdentityModel.Tokens
 {
-    internal static class Utility
+    public static class Utility
     {
         public const string Empty = "empty";
         public const string Null = "null";
@@ -64,6 +64,26 @@ namespace System.IdentityModel.Tokens
             }
 
             return sb.ToString();
+        }
+
+        public static bool isHttps(string address)
+        {
+            if (string.IsNullOrEmpty(address))
+            {
+                return false;
+            }
+
+            return address.StartsWith("https");
+        }
+
+        public static bool isHttps(Uri uri)
+        {
+            if (uri == null)
+            {
+                return false;
+            }
+
+            return uri.Scheme == "https";
         }
     }
 }

@@ -16,6 +16,12 @@
 // limitations under the License.
 //-----------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Tests;
+using System.IO;
+using System.Reflection;
+using System.Threading;
 using Xunit;
 
 namespace Microsoft.IdentityModel.Protocols.Tests
@@ -28,6 +34,8 @@ namespace Microsoft.IdentityModel.Protocols.Tests
         [Fact(DisplayName = "HttpDocumentRetrieverTests: Constructors")]
         public void Constructors()
         {
+            HttpDocumentRetriever docRetriever = new HttpDocumentRetriever();
+            Assert.Throws<ArgumentNullException>(() => new HttpDocumentRetriever(null));
         }
 
         [Fact(DisplayName = "HttpDocumentRetrieverTests: Defaults")]
@@ -38,11 +46,51 @@ namespace Microsoft.IdentityModel.Protocols.Tests
         [Fact(DisplayName = "HttpDocumentRetrieverTests: GetSets")]
         public void GetSets()
         {
+            HttpDocumentRetriever docRetriever = new HttpDocumentRetriever();
+            Type type = typeof(HttpDocumentRetriever);
+            PropertyInfo[] properties = type.GetProperties();
+            if (properties.Length != 1)
+                Assert.True(true, "Number of properties has changed from 1 to: " + properties.Length + ", adjust tests");
+
+            GetSetContext context =
+                new GetSetContext
+                {
+                    PropertyNamesAndSetGetValue = new List<KeyValuePair<string, List<object>>>
+                    {
+                        new KeyValuePair<string, List<object>>("AllowHttp", new List<object>{false, true, false}),
+                    },
+                    Object = docRetriever,
+                };
+
+            TestUtilities.GetSet(context);
+            TestUtilities.AssertFailIfErrors("HttpDocumentRetrieverTests_GetSets", context.Errors);
+        }
+        private void GetDocument(string address, IDocumentRetriever docRetriever, ExpectedException ee)
+        {
+            try
+            {
+                string doc = docRetriever.GetDocumentAsync(address, CancellationToken.None).Result;
+                ee.ProcessNoException();
+            }
+            catch (AggregateException ex)
+            {
+                ex.Handle((x) =>
+                {
+                    ee.ProcessException(x);
+                    return true;
+                });
+            }
         }
 
         [Fact(DisplayName = "HttpDocumentRetrieverTests: Publics")]
         public void Publics()
         {
+            HttpDocumentRetriever docRetriever = new HttpDocumentRetriever();
+            GetDocument(null, docRetriever, ExpectedException.ArgumentNullException());
+            GetDocument("OpenIdConnectMetadata.json", docRetriever, new ExpectedException(typeof(ArgumentException), "IDX10108:"));
+            docRetriever.AllowHttp = true;
+            GetDocument("OpenIdConnectMetadata.json", docRetriever, new ExpectedException(typeof(IOException), "IDX10804:", typeof(InvalidOperationException)));
+            GetDocument("project.json", docRetriever, ExpectedException.NoExceptionExpected);
         }
     }
 }

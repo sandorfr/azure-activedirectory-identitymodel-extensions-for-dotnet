@@ -121,7 +121,8 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
             OpenIdConnectConfiguration openIdConnectConfiguration = null;
             try
             {
-                openIdConnectConfiguration = await OpenIdConnectConfigurationRetriever.GetAsync(uri, new HttpClient(), CancellationToken.None);
+                HttpDocumentRetriever docRetriever = new HttpDocumentRetriever { AllowHttp = true };
+                openIdConnectConfiguration = await OpenIdConnectConfigurationRetriever.GetAsync(uri, docRetriever, CancellationToken.None);
                 expectedException.ProcessNoException();
             }
             catch (Exception exception)
@@ -142,7 +143,8 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
             OpenIdConnectConfiguration openIdConnectConfiguration = null;
             try
             {
-                openIdConnectConfiguration = await OpenIdConnectConfigurationRetriever.GetAsync(uri, CancellationToken.None);
+                HttpDocumentRetriever docRetriever = new HttpDocumentRetriever { AllowHttp = true };
+                openIdConnectConfiguration = await OpenIdConnectConfigurationRetriever.GetAsync(uri, docRetriever, CancellationToken.None);
                 expectedException.ProcessNoException();
             }
             catch (Exception exception)
@@ -186,7 +188,7 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
             try
             {
                 openIdConnectConfiguration = await OpenIdConnectConfigurationRetriever.GetAsync("primary",
-                    new TestDocumentRetriever(primaryDocument, new GenericDocumentRetriever()), CancellationToken.None);
+                    new TestDocumentRetriever(primaryDocument, new HttpDocumentRetriever()), CancellationToken.None);
                 expectedException.ProcessNoException();
             }
             catch (Exception exception)
@@ -231,17 +233,27 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
             private string _primaryDocument;
             private string _secondaryDocument;
             private IDocumentRetriever _fallback;
+            private bool _allowHttp;
+
+            public bool AllowHttp
+            {
+                get { return _allowHttp; }
+                set { _allowHttp = value; }
+            }
 
             public TestDocumentRetriever(string primaryDocument, string secondaryDocument)
             {
                 _primaryDocument = primaryDocument;
                 _secondaryDocument = secondaryDocument;
+                _allowHttp = true;
             }
 
             public TestDocumentRetriever(string primaryDocument, IDocumentRetriever fallback)
             {
                 _primaryDocument = primaryDocument;
                 _fallback = fallback;
+                _fallback.AllowHttp = true;
+                _allowHttp = true;
             }
             
             public Task<string> GetDocumentAsync(string address, CancellationToken cancel)

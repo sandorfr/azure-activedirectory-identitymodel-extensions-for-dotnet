@@ -33,5 +33,10 @@ namespace Microsoft.IdentityModel.Protocols
         /// <param name="cancel"><see cref="CancellationToken"/>.</param>
         /// <returns>document as a string.</returns>
         Task<string> GetDocumentAsync(string address, CancellationToken cancel);
+
+        /// <summary>
+        /// Allow sending requests to Http addresses. This is turned OFF by default for security reasons. It is RECOMMENDED that you do not allow retrieval from http addresses by default.
+        /// </summary>
+        bool AllowHttp { get; set; }
     }
 }

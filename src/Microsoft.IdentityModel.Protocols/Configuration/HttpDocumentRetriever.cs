@@ -34,6 +34,7 @@ namespace Microsoft.IdentityModel.Protocols
     public class HttpDocumentRetriever : IDocumentRetriever
     {
         private readonly HttpClient _httpClient;
+        private bool _allowHttp;
 
         public HttpDocumentRetriever()
             : this(new HttpClient())
@@ -47,6 +48,13 @@ namespace Microsoft.IdentityModel.Protocols
                 LogHelper.Throw(string.Format(CultureInfo.InvariantCulture, LogMessages.IDX10000, GetType() + ": httpClient"), typeof(ArgumentNullException), EventLevel.Verbose);
             }
             _httpClient = httpClient;
+            _allowHttp = false;
+        }
+
+        public bool AllowHttp
+        {
+            get { return _allowHttp; }
+            set { _allowHttp = value; }
         }
 
         public async Task<string> GetDocumentAsync(string address, CancellationToken cancel)
@@ -55,6 +63,12 @@ namespace Microsoft.IdentityModel.Protocols
             {
                 LogHelper.Throw(string.Format(CultureInfo.InvariantCulture, LogMessages.IDX10000, GetType() + ": address"), typeof(ArgumentNullException), EventLevel.Verbose);
             }
+
+            if (!Utility.isHttps(address) && !AllowHttp)
+            {
+                LogHelper.Throw(string.Format(CultureInfo.InvariantCulture, LogMessages.IDX10108, address), typeof(ArgumentException), EventLevel.Error);
+            }
+
             try
             {
                 IdentityModelEventSource.Logger.WriteVerbose(string.Format(CultureInfo.InvariantCulture, LogMessages.IDX10805, address));
@@ -64,8 +78,15 @@ namespace Microsoft.IdentityModel.Protocols
             }
             catch (Exception ex)
             {
-                LogHelper.Throw(string.Format(CultureInfo.InvariantCulture, LogMessages.IDX10804, address), typeof(IOException), EventLevel.Error, ex);
-                return null;
+                if (File.Exists(address))
+                {
+                    return File.ReadAllText(address);
+                }
+                else
+                {
+                    LogHelper.Throw(string.Format(CultureInfo.InvariantCulture, LogMessages.IDX10804, address), typeof(IOException), EventLevel.Error, ex);
+                    return null;
+                }
             }
         }
     }
