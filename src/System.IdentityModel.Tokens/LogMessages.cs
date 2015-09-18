@@ -38,7 +38,7 @@ namespace System.IdentityModel.Tokens
         public const string IDX10105 = "IDX10105: NonceLifetime must be greater than zero. value: '{0}'";
         public const string IDX10106 = "IDX10106: When setting RefreshInterval, the value must be greater than MinimumRefreshInterval: '{0}'. value: '{1}'";
         public const string IDX10107 = "IDX10107: When setting AutomaticRefreshInterval, the value must be greater than MinimumAutomaticRefreshInterval: '{0}'. value: '{1}'";
-        public const string IDX10108 = "IDX10108: The address specified is not valid as per HTTPS scheme. Please specify an https address for security reasons. If you want to test with http address, set the AllowHttp property  on IDocumentRetriever to false. address: '{0}'";
+        public const string IDX10108 = "IDX10108: The address specified is not valid as per HTTPS scheme. Please specify an https address for security reasons. If you want to test with http address, set the RequireHttps property  on IDocumentRetriever to false. address: '{0}'";
 
         // token validation
         public const string IDX10200 = "IDX10200: Support for ValidateToken(string, TokenValidationParameters) requires a handler to implement ISecurityTokenValidator, none of the SecurityTokenHandlers did.";
@@ -108,17 +108,17 @@ namespace System.IdentityModel.Tokens
         public const string IDX10317 = "IDX10317: RequireAuthTime is 'true' (default is 'false') but jwt.PayLoad.AuthTime is 'null or whitespace', jwt: '{0}'.";
         public const string IDX10318 = "IDX10318: RequireAzp is 'true' (default is 'false') but jwt.PayLoad.Azp is 'null or whitespace', jwt: '{0}'.";
         public const string IDX10319 = "IDX10319: Validating the nonce claim found in the id_token.";
-        public const string IDX10320 = "IDX10320: RequireNonce is 'true' (default) but validationContext.Nonce is null. A nonce cannot be validated. If you don't need to check the nonce, set OpenIdConnectProtocolValidator.RequireNonce to 'false'.";
+        public const string IDX10320 = "IDX10320: RequireNonce is '{0}' but OpenIdConnectProtocolValidationContext.Nonce is null. A nonce cannot be validated. If you don't need to check the nonce, set OpenIdConnectProtocolValidator.RequireNonce to 'false'.";
         public const string IDX10321 = "IDX10321: The 'nonce' found in the jwt token did not match the expected nonce.\nexpected: '{0}'\nfound in jwt: '{1}'.\njwt: '{2}'.";
-        public const string IDX10322 = "IDX10322: validationContext.Nonce is null, there is no 'nonce' in the OpenIdConnect Response to validate.";
-        public const string IDX10323 = "IDX10323: The jwt did not contain a 'nonce' claim. The nonce cannot be validated. If you don't need to check the nonce, set OpenIdConnectProtocolValidator.RequireNonce to 'false'.\n jwt: '{0}'.";
+        public const string IDX10322 = "IDX10322: RequireNonce is false, validationContext.Nonce is null and there is no 'nonce' in the OpenIdConnect Response to validate.";
+        public const string IDX10323 = "IDX10323: RequireNonce is '{0}', the OpenIdConnect request contained nonce but the jwt does not contain a 'nonce' claim. The nonce cannot be validated. If you don't need to check the nonce, set OpenIdConnectProtocolValidator.RequireNonce to 'false'.\n jwt: '{1}'.";
         public const string IDX10324 = "IDX10324: The 'nonce' has expired: '{0}'. Time from 'nonce': '{1}', Current Time: '{2}'. NonceLifetime is: '{3}'.";
         public const string IDX10325 = "IDX10325: The 'nonce' did not contain a timestamp: '{0}'.\nFormat expected is: <epochtime>.<noncedata>.";
         public const string IDX10326 = "IDX10326: The 'nonce' timestamp could not be converted to a positive integer (greater than 0).\ntimestamp: '{0}'\nnonce: '{1}'.";
         public const string IDX10327 = "IDX10327: The 'nonce' timestamp: '{0}', could not be converted to a DateTime using DateTime.FromBinary({0}).\nThe value must be between: '{1}' and '{2}'.";
         public const string IDX10328 = "IDX10328: Generating nonce for openIdConnect message.";
-        public const string IDX10329 = "IDX10329: The OpenIdConnectProtocolValidationContext.State is null and RequireState is true.";
-        public const string IDX10330 = "IDX10330: The OpenIdConnect Request contained 'state', but the Response does not contain 'state'.";
+        public const string IDX10329 = "IDX10329: RequireStateValidation is '{0}' but the OpenIdConnectProtocolValidationContext.State is null. State cannot be validated.";
+        public const string IDX10330 = "IDX10330: RequireStateValidation is '{0}', the OpenIdConnect Request contained 'state', but the Response does not contain 'state'.";
         public const string IDX10331 = "IDX10331: The 'state' parameter in the message: '{0}', does not equal the 'state' in the context: '{1}'.";
         public const string IDX10332 = "IDX10332: OpenIdConnectProtocolValidationContext.ValidatedIdToken is null. There is no 'id_token' to validate against.";
         public const string IDX10333 = "IDX10333: OpenIdConnectProtocolValidationContext.ProtocolMessage is null, there is no OpenIdConnect Response to validate.";
@@ -129,7 +129,7 @@ namespace System.IdentityModel.Tokens
         public const string IDX10338 = "IDX10338: Subject claim present in 'id_token': '{0}' does not match the claim received from UserInfo Endpoint: '{1}'.";
         public const string IDX10339 = "IDX10339: The 'id_token' contains multiple audiences but 'azp' claim is missing.";
         public const string IDX10340 = "IDX10340: The 'id_token' contains 'azp' claim but its value is not equal to Client Id. 'azp': '{0}'. clientId: '{1}.";
-        public const string IDX10341 = "IDX10341: 'RequireStateValidation' = false and there is no 'state' to validate in OpenIdConnectProtocolValidationContext.";
+        public const string IDX10341 = "IDX10341: 'RequireStateValidation' = false, OpenIdConnectProtocolValidationContext.State is null and there is no 'state' in the OpenIdConnect response to validate.";
 
 
         // SecurityTokenHandler messages
@@ -222,6 +222,7 @@ namespace System.IdentityModel.Tokens
         public const string IDX10811 = "IDX10811: Deserializing the string: '{0}' obtained from metadata endpoint into openIdConnectConfiguration object.";
         public const string IDX10812 = "IDX10812: Retrieving json web keys from: '{0}'.";
         public const string IDX10813 = "IDX10813: Deserializing json web keys: '{0}'.";
+        public const string IDX10814 = "IDX10814: Cannot read file from the address: '{0}'. File does not exist.";
 
         // wsfederation messages
         public const string IDX10900 = "IDX10900: Building wsfederation message from query string: '{0}'.";

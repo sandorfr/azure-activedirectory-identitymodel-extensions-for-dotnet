@@ -43,7 +43,7 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
         [Fact(DisplayName = "ConfigurationManagerTests: GetSets")]
         public void GetSets()
         {
-            HttpDocumentRetriever docRetriever = new HttpDocumentRetriever { AllowHttp = true };
+            FileDocumentRetriever docRetriever = new FileDocumentRetriever();
             ConfigurationManager<OpenIdConnectConfiguration> configManager = new ConfigurationManager<OpenIdConnectConfiguration>("OpenIdConnectMetadata.json", new OpenIdConnectConfigurationRetriever(), docRetriever);
             Type type = typeof(ConfigurationManager<OpenIdConnectConfiguration>);
             PropertyInfo[] properties = type.GetProperties();
@@ -127,8 +127,7 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
         [Fact(DisplayName = "ConfigurationManagerTests: Publics")]
         public void Publics()
         {
-            HttpDocumentRetriever docRetriever = new HttpDocumentRetriever { AllowHttp = true };
-            ConfigurationManager<OpenIdConnectConfiguration> configManager = new ConfigurationManager<OpenIdConnectConfiguration>("OpenIdConnectMetadata.json", new OpenIdConnectConfigurationRetriever(), docRetriever);
+            ConfigurationManager<OpenIdConnectConfiguration> configManager = new ConfigurationManager<OpenIdConnectConfiguration>("OpenIdConnectMetadata.json", new OpenIdConnectConfigurationRetriever(), new FileDocumentRetriever());
             OpenIdConnectConfiguration config = configManager.GetConfigurationAsync(CancellationToken.None).Result;
         }
     }

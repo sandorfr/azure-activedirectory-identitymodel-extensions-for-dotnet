@@ -66,7 +66,7 @@ namespace System.IdentityModel.Tokens
             return sb.ToString();
         }
 
-        public static bool isHttps(string address)
+        public static bool IsHttps(string address)
         {
             if (string.IsNullOrEmpty(address))
             {
@@ -76,7 +76,7 @@ namespace System.IdentityModel.Tokens
             return address.StartsWith("https");
         }
 
-        public static bool isHttps(Uri uri)
+        public static bool IsHttps(Uri uri)
         {
             if (uri == null)
             {

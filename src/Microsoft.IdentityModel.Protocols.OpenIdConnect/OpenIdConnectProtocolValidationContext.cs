@@ -58,7 +58,7 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect
         public JwtSecurityToken UserInfoEndpointResponse { get; set; }
 
         /// <summary>
-        /// Partially validated id_token. This has gone through basic validation - 'aud', 'iss', 'lifetime' and 'signature'.
+        /// This id_token is assumed to have audience, issuer, lifetime and signature validated.
         /// </summary>
         public JwtSecurityToken ValidatedIdToken { get; set; }
     }

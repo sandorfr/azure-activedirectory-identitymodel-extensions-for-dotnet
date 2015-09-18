@@ -314,9 +314,13 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
                 new ExpectedException(typeof(OpenIdConnectProtocolInvalidStateException), "IDX10329:")
                 );
 
-            // turn off state validation
+            // turn off state validation but message.State is not null
             protocolValidator.RequireStateValidation = false;
-            ValidateAuthenticationResponse(protocolValidationContext, protocolValidator, ExpectedException.NoExceptionExpected);
+            ValidateAuthenticationResponse(
+                protocolValidationContext,
+                protocolValidator,
+                new ExpectedException(typeof(OpenIdConnectProtocolInvalidStateException), "IDX10329:")
+                );
 
             // turn on state validation and add valid state
             protocolValidator.RequireStateValidation = true;
@@ -758,20 +762,18 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
         public void Validate_Nonce()
         {
             PublicOpenIdConnectProtocolValidator protocolValidatorRequiresTimeStamp = new PublicOpenIdConnectProtocolValidator();
-            string nonceWithTimeStamp = protocolValidatorRequiresTimeStamp.GenerateNonce();
-
             PublicOpenIdConnectProtocolValidator protocolValidatorDoesNotRequireTimeStamp =
                 new PublicOpenIdConnectProtocolValidator
                 {
                     RequireTimeStampInNonce = false,
                 };
-
             PublicOpenIdConnectProtocolValidator protocolValidatorDoesNotRequireNonce =
                new PublicOpenIdConnectProtocolValidator
                {
                    RequireNonce = false,
                };
 
+            string nonceWithTimeStamp = protocolValidatorRequiresTimeStamp.GenerateNonce();
             string nonceWithoutTimeStamp = protocolValidatorDoesNotRequireTimeStamp.GenerateNonce();
             string nonceBadTimeStamp = "abc.abc";
             string nonceTicksTooLarge = Int64.MaxValue.ToString() + "." + nonceWithoutTimeStamp;
@@ -787,7 +789,7 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
             JwtSecurityToken jwtWithNonceTicksNegative = new JwtSecurityToken(claims: new List<Claim> { new Claim(JwtRegisteredClaimNames.Nonce, nonceTicksNegative) });
             JwtSecurityToken jwtWithNonceZero = new JwtSecurityToken(claims: new List<Claim> { new Claim(JwtRegisteredClaimNames.Nonce, nonceTicksZero) });
             JwtSecurityToken jwtWithoutNonce = new JwtSecurityToken(claims: new List<Claim> { new Claim(JwtRegisteredClaimNames.NameId, nonceWithTimeStamp) });
-            JwtSecurityToken jwtWithNonceWhitespace = new JwtSecurityToken(claims: new List<Claim> { new Claim(JwtRegisteredClaimNames.Nonce, "") });
+            JwtSecurityToken jwtWithNonceWhitespace = new JwtSecurityToken(claims: new List<Claim> { new Claim(JwtRegisteredClaimNames.Nonce, " ") });
 
             OpenIdConnectProtocolValidationContext validationContext = new OpenIdConnectProtocolValidationContext();
 
@@ -901,9 +903,14 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
                 new ExpectedException(typeof(OpenIdConnectProtocolInvalidNonceException), "IDX10326:")
                 );
 
-            // require nonce false
+            // validationcontext.nonce == null, idToken.nonce != null and requireNonce is false
             validationContext.Nonce = null;
-            ValidateNonce(jwtWithNonceWithoutTimeStamp, protocolValidatorDoesNotRequireNonce, validationContext, ExpectedException.NoExceptionExpected);
+            ValidateNonce(
+                jwtWithNonceWithoutTimeStamp,
+                protocolValidatorDoesNotRequireNonce,
+                validationContext,
+                new ExpectedException(typeof(OpenIdConnectProtocolInvalidNonceException), "IDX10320:")
+                );
 
             // validationContext has nonce, idToken.nonce is null and requireNonce is false
             validationContext.Nonce = nonceWithTimeStamp;
@@ -1063,25 +1070,37 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
                 var state1 = Guid.NewGuid().ToString();
                 var state2 = Guid.NewGuid().ToString();
 
+                // validationContext is null
                 dataset.Add(null, validator, ExpectedException.ArgumentNullException());
-                dataset.Add(
-                    new OpenIdConnectProtocolValidationContext(),
-                    validator,
-                    new ExpectedException(typeof(OpenIdConnectProtocolInvalidStateException), "IDX10329:")
-                );
-                dataset.Add(
-                    new OpenIdConnectProtocolValidationContext(),
-                    validatorRequireStateFalse,
-                    ExpectedException.NoExceptionExpected
-                );
+                // validationContext does not contain state and RequireStateValidation is true
                 dataset.Add(
                     new OpenIdConnectProtocolValidationContext
                     {
-                        State = state1,
+                        ProtocolMessage = new OpenIdConnectMessage()
+                    },
+                    validator,
+                    new ExpectedException(typeof(OpenIdConnectProtocolInvalidStateException), "IDX10329:")
+                );
+                // validationContext does not contain state and RequireStateValidation is false
+                dataset.Add(
+                    new OpenIdConnectProtocolValidationContext
+                    {
+                        ProtocolMessage = new OpenIdConnectMessage()
+                    },
+                    validatorRequireStateFalse,
+                    ExpectedException.NoExceptionExpected
+                );
+                // validationContext contains state but the message does not have state
+                dataset.Add(
+                    new OpenIdConnectProtocolValidationContext
+                    {
+                        ProtocolMessage = new OpenIdConnectMessage(),
+                        State = state1
                     },
                     validator,
                     new ExpectedException(typeof(OpenIdConnectProtocolInvalidStateException), "IDX10330:")
                 );
+                // state match
                 dataset.Add(
                     new OpenIdConnectProtocolValidationContext()
                     {
@@ -1094,6 +1113,7 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
                     validator,
                     ExpectedException.NoExceptionExpected
                 );
+                // state mismatch
                 dataset.Add(
                     new OpenIdConnectProtocolValidationContext()
                     {

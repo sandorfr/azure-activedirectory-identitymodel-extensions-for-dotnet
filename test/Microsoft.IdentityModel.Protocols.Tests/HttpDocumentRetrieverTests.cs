@@ -57,7 +57,7 @@ namespace Microsoft.IdentityModel.Protocols.Tests
                 {
                     PropertyNamesAndSetGetValue = new List<KeyValuePair<string, List<object>>>
                     {
-                        new KeyValuePair<string, List<object>>("AllowHttp", new List<object>{false, true, false}),
+                        new KeyValuePair<string, List<object>>("RequireHttps", new List<object>{true, false, true}),
                     },
                     Object = docRetriever,
                 };
@@ -88,9 +88,9 @@ namespace Microsoft.IdentityModel.Protocols.Tests
             HttpDocumentRetriever docRetriever = new HttpDocumentRetriever();
             GetDocument(null, docRetriever, ExpectedException.ArgumentNullException());
             GetDocument("OpenIdConnectMetadata.json", docRetriever, new ExpectedException(typeof(ArgumentException), "IDX10108:"));
-            docRetriever.AllowHttp = true;
+            GetDocument("https://login.windows.net/common/.well-known/openid-configuration", docRetriever, ExpectedException.NoExceptionExpected);
+            docRetriever.RequireHttps = false;
             GetDocument("OpenIdConnectMetadata.json", docRetriever, new ExpectedException(typeof(IOException), "IDX10804:", typeof(InvalidOperationException)));
-            GetDocument("project.json", docRetriever, ExpectedException.NoExceptionExpected);
         }
     }
 }

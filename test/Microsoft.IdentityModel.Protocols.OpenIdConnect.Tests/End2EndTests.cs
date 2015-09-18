@@ -41,8 +41,7 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
                     );
 
             //"<RSAKeyValue><Modulus>rCz8Sn3GGXmikH2MdTeGY1D711EORX/lVXpr+ecGgqfUWF8MPB07XkYuJ54DAuYT318+2XrzMjOtqkT94VkXmxv6dFGhG8YZ8vNMPd4tdj9c0lpvWQdqXtL1TlFRpD/P6UMEigfN0c9oWDg9U7Ilymgei0UXtf1gtcQbc5sSQU0S4vr9YJp2gLFIGK11Iqg4XSGdcI0QWLLkkC6cBukhVnd6BCYbLjTYy3fNs4DzNdemJlxGl8sLexFytBF6YApvSdus3nFXaMCtBGx16HzkK9ne3lobAwL2o79bP4imEGqg+ibvyNmbrwFGnQrBc1jTF9LyQX9q+louxVfHs6ZiVw==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>"
-            HttpDocumentRetriever docRetriver = new HttpDocumentRetriever { AllowHttp = true };
-            OpenIdConnectConfiguration configuration = OpenIdConnectConfigurationRetriever.GetAsync(OpenIdConfigData.OpenIdConnectMetadataFileEnd2End, docRetriver, CancellationToken.None).Result;
+            OpenIdConnectConfiguration configuration = OpenIdConnectConfigurationRetriever.GetAsync(OpenIdConfigData.OpenIdConnectMetadataFileEnd2End, new FileDocumentRetriever(), CancellationToken.None).Result;
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             JwtSecurityToken jwtToken = 
                 tokenHandler.CreateToken(
